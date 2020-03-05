@@ -21,7 +21,7 @@ class aerial_shot():
         #The point we hit the ball at
         self.intercept = self.ball_location - (self.shot_vector * 110)
         #dictates when (how late) we jump, much later than in jump_shot because we can take advantage of a double jump
-        self.jump_threshold = 584
+        self.jump_threshold = 600
         #what time we began our jump at
         self.jump_time = 0
         #If we need a second jump we have to let go of the jump button for 3 frames, this counts how many frames we have let go for
@@ -236,7 +236,7 @@ class jump_shot():
         #controls how soon car will jump based on acceleration required. max 584
         #bigger = later, which allows more time to align with shot vector
         #smaller = sooner
-        self.jump_threshold = 250
+        self.jump_threshold = 400
         #Flags for what part of the routine we are in
         self.jumping = False
         self.dodging = False
@@ -259,7 +259,7 @@ class jump_shot():
 
         #The adjustment causes the car to circle around the dodge point in an effort to line up with the shot vector
         #The adjustment slowly decreases to 0 as the bot nears the time to jump
-        adjustment = car_to_dodge_point.angle(self.shot_vector) * distance_remaining / 1.57 #size of adjustment
+        adjustment = car_to_dodge_point.angle(self.shot_vector) * distance_remaining / 2.0 #size of adjustment
         adjustment *= (cap(self.jump_threshold-(acceleration_required[2]),0.0,self.jump_threshold) / self.jump_threshold) #factoring in how close to jump we are
         #we don't adjust the final target if we are already jumping
         final_target = self.dodge_point + ((car_to_dodge_perp.normalize() * adjustment) if not self.jumping else 0) + Vector3(0,0,50)
@@ -294,7 +294,7 @@ class jump_shot():
                 #Switch into the jump when the upward acceleration required reaches our threshold, and our lateral acceleration is negligible
                 self.jumping = True 
         else:
-            if (raw_time_remaining > 0.25 and not shot_valid(agent,self,150)) or raw_time_remaining <= -0.9 or (not agent.me.airborne and self.counter > 0):
+            if (raw_time_remaining > 0.2 and not shot_valid(agent,self,150)) or raw_time_remaining <= -0.9 or (not agent.me.airborne and self.counter > 0):
                 agent.pop()
                 agent.push(recovery())
             elif self.counter == 0 and local_acceleration_required[2] > 0.0 and raw_time_remaining > 0.083:
