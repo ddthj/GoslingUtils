@@ -16,7 +16,7 @@ class ExampleBot(GoslingAgent):
         #An example of pushing routines to the stack:
         if len(agent.stack) < 1:
             if agent.kickoff_flag:
-                agent.push(kickoff)
+                agent.push(kickoff())
             else:
                 agent.push(atba())
 
