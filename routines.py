@@ -103,7 +103,7 @@ class flip():
     def __init__(self,vector,cancel = False):
         self.vector = vector.normalize()
         self.pitch = abs(self.vector[0])* -sign(self.vector[0])
-        self.yaw = abs(self.vector[1]) * sign(self.vector[1])* sign(self.vector[0])
+        self.yaw = abs(self.vector[1]) * sign(self.vector[1])
         self.cancel = cancel
         #the time the jump began
         self.time = -1
