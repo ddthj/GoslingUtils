@@ -126,3 +126,15 @@ def sign(x):
 def steerPD(angle, rate):
     #A Proportional-Derivative control loop used for defaultPD
     return cap(((35*(angle+rate))**3)/10, -1.0, 1.0)
+
+def lerp(a, b, t):
+    #Linearly interpolate from a to b using t
+    #For instance, when t == 0, a is returned, and when t == 1, b is returned
+    #Works for both numbers and Vector3s
+    return (b - a) * t + a
+
+def invlerp(a, b, v):
+    #Inverse linear interpolation from a to b with value v
+    #For instance, it returns 0 if v == a, and returns 1 if v == b, and returns 0.5 if v is exactly between a and b
+    #Works for both numbers and Vector3s
+    return (v - a)/(b - a)
