@@ -125,20 +125,32 @@ class car_object:
             self.team = packet.game_cars[self.index].team
             self.update(packet)
     def local(self,value):
-        #Shorthand for self.matrix.dot(value)
-        return self.matrix.dot(value)
+        #Shorthand for self.orientation.dot(value)
+        return self.orientation.dot(value)
     def update(self, packet):
         car = packet.game_cars[self.index]
         self.location.data = [car.physics.location.x, car.physics.location.y, car.physics.location.z]
         self.velocity.data = [car.physics.velocity.x, car.physics.velocity.y, car.physics.velocity.z]
-        self.matrix = Matrix3(car.physics.rotation.pitch, car.physics.rotation.yaw, car.physics.rotation.roll)
-        self.angular_velocity = self.matrix.dot([car.physics.angular_velocity.x, car.physics.angular_velocity.y, car.physics.angular_velocity.z]).data
+        self.orientation = Matrix3(car.physics.rotation.pitch, car.physics.rotation.yaw, car.physics.rotation.roll)
+        self.angular_velocity = self.orientation.dot([car.physics.angular_velocity.x, car.physics.angular_velocity.y, car.physics.angular_velocity.z]).data
         self.demolished = car.is_demolished
         self.airborne = not car.has_wheel_contact
         self.supersonic = car.is_super_sonic
         self.jumped = car.jumped
         self.doublejumped = car.double_jumped
         self.boost = car.boost
+    @property
+    def forward(self):
+        #A vector pointing forwards relative to the cars orientation. Its magnitude is 1
+        return self.orientation.forward
+    @property
+    def left(self):
+        #A vector pointing left relative to the cars orientation. Its magnitude is 1
+        return self.orientation.left
+    @property
+    def up(self):
+        #A vector pointing up relative to the cars orientation. Its magnitude is 1
+        return self.orientation.up
 
 class ball_object:
     def __init__(self):

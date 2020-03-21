@@ -37,7 +37,7 @@ def find_hits(agent,targets):
             direction, distance = car_to_ball.normalize(True)
 
             #How far the car must turn in order to face the ball, for forward and reverse
-            forward_angle = direction.angle(agent.me.matrix[0])
+            forward_angle = direction.angle(agent.me.forward)
             backward_angle = math.pi - forward_angle
 
             #Accounting for the average time it takes to turn and face the ball
