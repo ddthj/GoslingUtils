@@ -118,11 +118,9 @@ class car_object:
         self.supersonic = False
         self.jumped = False
         self.doublejumped = False
-        self.team = 0
-        self.boost= 0
+        self.boost = 0
         self.index = index
         if packet != None:
-            self.team = packet.game_cars[self.index].team
             self.update(packet)
     def local(self,value):
         #Shorthand for self.orientation.dot(value)
