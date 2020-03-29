@@ -52,7 +52,7 @@ class aerial_shot():
         final_target = self.intercept + ((car_to_intercept_perp.normalize() * adjustment) if self.jump_time == 0 else 0)
 
         #Some extra adjustment to the final target to ensure it's inside the field and we don't try to dirve through any goalposts to reach it
-        if abs(agent.me.location[1] > 5150): final_target[0] = cap(final_target[0],-750,750)
+        if abs(agent.me.location[1]) > 5150: final_target[0] = cap(final_target[0],-750,750)
         
         local_final_target = agent.me.local(final_target - agent.me.location)
 
@@ -152,7 +152,7 @@ class goto():
             final_target = self.target
 
         #Some adjustment to the final target to ensure it's inside the field and we don't try to dirve through any goalposts to reach it
-        if abs(agent.me.location[1] > 5150): final_target[0] = cap(final_target[0],-750,750)
+        if abs(agent.me.location[1]) > 5150: final_target[0] = cap(final_target[0],-750,750)
 
         local_target = agent.me.local(final_target - agent.me.location)
         
@@ -197,7 +197,7 @@ class goto_boost():
             final_target = self.boost.location
 
         #Some adjustment to the final target to ensure it's inside the field and we don't try to dirve through any goalposts to reach it
-        if abs(agent.me.location[1] > 5150): final_target[0] = cap(final_target[0],-750,750)
+        if abs(agent.me.location[1]) > 5150: final_target[0] = cap(final_target[0],-750,750)
 
         local_target = agent.me.local(final_target - agent.me.location)
         
@@ -266,7 +266,7 @@ class jump_shot():
         #Ensuring our target isn't too close to the sides of the field, where our car would get messed up by the radius of the curves
         
         #Some adjustment to the final target to ensure it's inside the field and we don't try to dirve through any goalposts to reach it
-        if abs(agent.me.location[1] > 5150): final_target[0] = cap(final_target[0],-750,750)
+        if abs(agent.me.location[1]) > 5150: final_target[0] = cap(final_target[0],-750,750)
 
         local_final_target = agent.me.local(final_target - agent.me.location)
 
@@ -367,7 +367,7 @@ class short_shot():
         final_target = agent.ball.location + (target_vector*(distance/2))
 
         #Some adjustment to the final target to ensure we don't try to dirve through any goalposts to reach it
-        if abs(agent.me.location[1] > 5150): final_target[0] = cap(final_target[0],-750,750)
+        if abs(agent.me.location[1]) > 5150: final_target[0] = cap(final_target[0],-750,750)
         
         agent.line(final_target-Vector3(0,0,100),final_target+Vector3(0,0,100),[255,255,255])
         
