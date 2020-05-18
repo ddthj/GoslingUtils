@@ -32,10 +32,6 @@ class GoslingAgent(BaseAgent):
         self.controller = SimpleControllerState()
         #a flag that tells us when kickoff is happening
         self.kickoff_flag = False
-
-        self.last_time = 0
-        self.my_score = 0
-        self.foe_score = 0
         
     def get_ready(self,packet):
         #Preps all of the objects that will be updated during play
