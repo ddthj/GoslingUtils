@@ -194,7 +194,7 @@ class goto_boost():
         else:
             adjustment = 9999
             car_to_target = 0
-            final_target = self.boost.location
+            final_target = self.boost.location.copy()
 
         #Some adjustment to the final target to ensure it's inside the field and we don't try to dirve through any goalposts to reach it
         if abs(agent.me.location[1]) > 5150: final_target[0] = cap(final_target[0],-750,750)
