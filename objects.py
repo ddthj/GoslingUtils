@@ -12,10 +12,10 @@ class GoslingAgent(BaseAgent):
         mutators = self.get_match_settings().MutatorSettings()
 
         gravity = [
-            Vector3(z=-650),
-            Vector3(z=-325),
-            Vector3(z=-1137.5),
-            Vector3(z=-3250)
+            Vector3(0, 0, -650),
+            Vector3(0, 0, -325),
+            Vector3(0, 0, -1137.5),
+            Vector3(0, 0, -3250)
         ]
 
         self.gravity = gravity[mutators.GravityOption()]
