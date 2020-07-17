@@ -41,7 +41,7 @@ class aerial_shot():
 
         speed_required = distance_remaining / time_remaining
         #When still on the ground we pretend gravity doesn't exist, for better or worse
-        acceleration_required = backsolve(self.intercept,agent.me,time_remaining, 0 if self.jump_time == 0 else 325)
+        acceleration_required = backsolve(self.intercept,agent.me,time_remaining, 0 if self.jump_time == 0 else agent.gravity.z * -1)
         local_acceleration_required = agent.me.local(acceleration_required)
 
         #The adjustment causes the car to circle around the dodge point in an effort to line up with the shot vector
@@ -254,7 +254,7 @@ class jump_shot():
         distance_remaining = car_to_dodge_point.magnitude()
 
         speed_required = distance_remaining / time_remaining
-        acceleration_required = backsolve(self.dodge_point,agent.me,time_remaining,0 if not self.jumping else 650)
+        acceleration_required = backsolve(self.dodge_point,agent.me,time_remaining,0 if not self.jumping else agent.gravity.z)
         local_acceleration_required = agent.me.local(acceleration_required)
 
         #The adjustment causes the car to circle around the dodge point in an effort to line up with the shot vector
