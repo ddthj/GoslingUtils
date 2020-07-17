@@ -9,6 +9,17 @@ class GoslingAgent(BaseAgent):
     #This is the main object of Gosling Utils. It holds/updates information about the game and runs routines
     #All utils rely on information being structured and accessed the same way as configured in this class
     def initialize_agent(self):
+        mutators = self.get_match_settings().MutatorSettings()
+
+        gravity = [
+            Vector(z=-650),
+            Vector(z=-325),
+            Vector(z=-1137.5),
+            Vector(z=-3250)
+        ]
+
+        self.gravity = gravity[mutators.GravityOption()]
+
         #A list of cars for both teammates and opponents
         self.friends = []
         self.foes = []
