@@ -5,11 +5,10 @@ from objects import Vector3
 
 def backsolve(target, car, time, gravity = 650):
     #Finds the acceleration required for a car to reach a target in a specific amount of time
-    d = target - car.location
-    dvx = ((d[0]/time) - car.velocity[0]) / time
-    dvy = ((d[1]/time) - car.velocity[1]) / time
-    dvz = (((d[2]/time) - car.velocity[2]) / time) + (gravity * time)
-    return Vector3(dvx,dvy,dvz)
+    velocity_required = (target - car.location) / time
+    acceleration_required = velocity_required - car.velocity
+    acceleration_required[2] += (gravity * time)
+    return acceleration_required
 
 def cap(x, low, high):
     #caps/clamps a number between a low and high value
@@ -68,15 +67,21 @@ def find_slope(shot_vector,car_to_target):
 
 def post_correction(ball_location, left_target, right_target):
     #this function returns target locations that are corrected to account for the ball's radius
-    #If the left and right post swap sides, a goal cannot be scored
-    ball_radius = 120 #We purposly make this a bit larger so that our shots have a higher chance of success
+    # it also checks to make sure the ball can fit between the corrected locations
+    ball_radius = 110  # We purposely make this a bit larger so that our shots have a higher chance of success
     goal_line_perp = (right_target - left_target).cross((0,0,1))
-    left = left_target + ((left_target - ball_location).normalize().cross((0,0,-1))*ball_radius)
-    right = right_target + ((right_target - ball_location).normalize().cross((0,0,1))*ball_radius)
-    left = left_target if (left-left_target).dot(goal_line_perp) > 0.0 else left
-    right = right_target if (right-right_target).dot(goal_line_perp) > 0.0 else right
-    swapped = True if (left - ball_location).normalize().cross((0,0,1)).dot((right - ball_location).normalize()) > -0.1 else False
-    return left,right,swapped
+    left_adjusted = left_target + ((left_target - ball_location).normalize().cross((0,0,-1))*ball_radius)
+    right_adjusted = right_target + ((right_target - ball_location).normalize().cross((0,0,1))*ball_radius)
+    left_corrected = left_target if (left_adjusted-left_target).dot(goal_line_perp) > 0.0 else left_adjusted
+    right_corrected = right_target if (right_adjusted-right_target).dot(goal_line_perp) > 0.0 else right_adjusted
+
+    new_goal_line, new_goal_width = (right_corrected - left_corrected).normalize(True)
+    new_goal_perp = (new_goal_line.cross((0, 0, 1)))
+    goal_center = left_corrected + (new_goal_line * new_goal_width * 0.5)
+    ball_to_goal = (goal_center - ball_location).normalize()
+
+    ball_fits = new_goal_width * abs(new_goal_perp.dot(ball_to_goal)) > ball_radius * 2
+    return left_corrected, right_corrected, ball_fits
 
 def quadratic(a,b,c):
     #Returns the two roots of a quadratic

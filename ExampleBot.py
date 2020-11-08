@@ -20,4 +20,3 @@ class ExampleBot(GoslingAgent):
             else:
                 agent.push(atba())
 
-        

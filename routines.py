@@ -37,16 +37,16 @@ class aerial_shot():
 
         car_to_intercept = self.intercept - agent.me.location
         car_to_intercept_perp = car_to_intercept.cross((0,0,side_of_shot)) #perpendicular
-        distance_remaining = car_to_intercept.flatten().magnitude()
+        flat_distance_remaining = car_to_intercept.flatten().magnitude()
 
-        speed_required = distance_remaining / time_remaining
+        speed_required = flat_distance_remaining / time_remaining
         #When still on the ground we pretend gravity doesn't exist, for better or worse
-        acceleration_required = backsolve(self.intercept,agent.me,time_remaining, 0 if self.jump_time == 0 else 325)
+        acceleration_required = backsolve(self.intercept,agent.me,time_remaining, 325)
         local_acceleration_required = agent.me.local(acceleration_required)
 
         #The adjustment causes the car to circle around the dodge point in an effort to line up with the shot vector
         #The adjustment slowly decreases to 0 as the bot nears the time to jump
-        adjustment = car_to_intercept.angle(self.shot_vector) * distance_remaining / 1.57 #size of adjustment
+        adjustment = car_to_intercept.angle(self.shot_vector) * flat_distance_remaining / 1.57 #size of adjustment
         adjustment *= (cap(self.jump_threshold-(acceleration_required[2]),0.0,self.jump_threshold) / self.jump_threshold) #factoring in how close to jump we are
         #we don't adjust the final target if we are already jumping
         final_target = self.intercept + ((car_to_intercept_perp.normalize() * adjustment) if self.jump_time == 0 else 0)
@@ -67,23 +67,34 @@ class aerial_shot():
             defaultThrottle(agent, speed_required)
             agent.controller.boost = False if abs(angles[1]) > 0.3 or agent.me.airborne else agent.controller.boost
             agent.controller.handbrake = True if abs(angles[1]) > 2.3 else agent.controller.handbrake
-            if acceleration_required[2] > self.jump_threshold:
+
+            velocity_required = car_to_intercept / time_remaining
+            good_slope = velocity_required[2] / cap(abs(velocity_required[0]) + abs(velocity_required[1]), 1, 10000) > 0.15
+            if good_slope and (local_acceleration_required[2]) > self.jump_threshold and agent.me.velocity.flatten().normalize().dot(acceleration_required.flatten().normalize()) > 0.8:
                 #Switch into the jump when the upward acceleration required reaches our threshold, hopefully we have aligned already...
                 self.jump_time = agent.time
         else:
             time_since_jump = agent.time - self.jump_time
 
             #While airborne we boost if we're within 30 degrees of our local acceleration requirement
-            if agent.me.airborne and local_acceleration_required.magnitude() * time_remaining > 100:
+            if agent.me.airborne and local_acceleration_required.magnitude() * time_remaining > 90:
                     angles = defaultPD(agent, local_acceleration_required)
-                    if abs(angles[0]) + abs(angles[1]) < 0.5:
+                    if abs(angles[0]) + abs(angles[1]) < 0.45:
                         agent.controller.boost = True
+            else:
+                final_target -= Vector3(0, 0, 45)
+                local_final_target = agent.me.local(final_target - agent.me.location)
+                angles = defaultPD(agent, local_final_target)
+
             if self.counter == 0 and (time_since_jump <= 0.2 and local_acceleration_required[2] > 0):
                 #hold the jump button up to 0.2 seconds to get the most acceleration from the first jump
                 agent.controller.jump = True
             elif time_since_jump > 0.2 and self.counter < 3:
                 #Release the jump button for 3 ticks
                 agent.controller.jump = False
+                agent.controller.pitch = 0
+                agent.controller.yaw = 0
+                agent.controller.roll = 0
                 self.counter += 1
             elif local_acceleration_required[2] > 300 and self.counter == 3:
                 #the acceleration from the second jump is instant, so we only do it for 1 frame
@@ -93,9 +104,12 @@ class aerial_shot():
                 agent.controller.roll = 0
                 self.counter += 1
 
-        if raw_time_remaining < -0.25 or not shot_valid(agent,self):
+        if raw_time_remaining < -0.25:
             agent.pop()
             agent.push(recovery())
+        if not shot_valid(agent, self, 90):
+            agent.pop()
+
 
 class flip():
     #Flip takes a vector in local coordinates and flips/dodges in that direction
@@ -274,6 +288,7 @@ class jump_shot():
         agent.line(agent.me.location,self.dodge_point)
         agent.line(self.dodge_point-Vector3(0,0,100), self.dodge_point+Vector3(0,0,100),[255,0,0])
         agent.line(final_target-Vector3(0,0,100),final_target+Vector3(0,0,100),[0,255,0])
+        agent.line(agent.ball.location, agent.ball.location + (self.shot_vector * 300))
 
         #Calling our drive utils to get us going towards the final target
         angles = defaultPD(agent,local_final_target,self.direction)
@@ -285,7 +300,7 @@ class jump_shot():
         agent.controller.handbrake = True if abs(angles[1]) > 2.3 and self.direction == 1 else agent.controller.handbrake
 
         if not self.jumping:
-            if raw_time_remaining <= 0.0 or (speed_required - 2300) * time_remaining > 45 or not shot_valid(agent,self):
+            if raw_time_remaining <= 0.0 or (speed_required - 2300) * time_remaining > 60 or not shot_valid(agent,self):
                 #If we're out of time or not fast enough to be within 45 units of target at the intercept time, we pop
                 agent.pop()
                 if agent.me.airborne:
