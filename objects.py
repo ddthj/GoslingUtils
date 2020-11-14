@@ -399,7 +399,11 @@ class Vector3:
 
     def angle(self, value):
         # Returns the angle between this Vector3 and another Vector3
-        return math.acos(round(self.flatten().normalize().dot(value.flatten().normalize()), 4))
+        a_dir, a_dist = self.normalize(True)
+        b_dir, b_dist = value.normalize(True)
+        if a_dist > 0 and b_dist > 0:
+            return math.acos(self.flatten().normalize().dot(value.flatten().normalize()) / (a_dist * b_dist))
+        return 0
 
     def rotate(self, angle):
         # Rotates this Vector3 by the given angle in radians
