@@ -48,7 +48,7 @@ def in_field(point,radius):
     point = Vector3(abs(point[0]),abs(point[1]),abs(point[2]))
     if point[0] > 4080 - radius:
         return False
-    elif point[1] > 5900 - radius:
+    elif point[1] > 5090 - radius:
         return False
     elif point[0] > 880 - radius and point[1] > 5105 - radius:
         return False
