@@ -45,7 +45,7 @@ def defaultThrottle(agent, target_speed, direction = 1.0):
 
 def in_field(point,radius):
     #determines if a point is inside the standard soccer field
-    point = Vector3(abs(point[0]),abs(point[1]),abs(point[2]))
+    point = abs(point)
     if point[0] > 4080 - radius:
         return False
     elif point[1] > 5090 - radius:
