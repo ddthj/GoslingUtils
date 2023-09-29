@@ -26,6 +26,8 @@ class aerial_shot():
         self.jump_time = 0
         #If we need a second jump we have to let go of the jump button for 3 frames, this counts how many frames we have let go for
         self.counter = 0
+        # used to keep track of how aligned the bot was with the shot vector when the routine starts
+        self.ratio = ratio
     def run(self,agent):
         raw_time_remaining = self.intercept_time - agent.time
         #Capping raw_time_remaining above 0 to prevent division problems

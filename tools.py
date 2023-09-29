@@ -47,7 +47,7 @@ def find_hits(agent,targets):
             backward_time = time_remaining - (backward_angle * 0.418)
 
             #If the car only had to drive in a straight line, we ensure it has enough time to reach the ball (a few assumptions are made)
-            forward_flag = forward_time > 0.0 and (distance*1.025 / forward_time) < (2299 if agent.me.boost > distance/100 else max(1400, 0.8 * agent.me.velocity.flatten().magnitude()))
+            forward_flag = forward_time > 0.0 and (distance*1.025 / forward_time) < (2300 if agent.me.boost > 30 else max(1410, agent.me.velocity.flatten().magnitude()))
             backward_flag = distance < 1500 and backward_time > 0.0 and (distance*1.05 / backward_time) < 1200
             
             #Provided everything checks out, we begin to look at the target pairs
@@ -61,20 +61,23 @@ def find_hits(agent,targets):
                         left_vector = (left - ball_location).normalize()
                         right_vector = (right - ball_location).normalize()
                         best_shot_vector = direction.clamp(left_vector, right_vector)
-                        
-                        #Check to make sure our approach is inside the field
-                        if True: # in_field(ball_location - (200*best_shot_vector),1):
-                            #The slope represents how close the car is to the chosen vector, higher = better
-                            #A slope of 1.0 would mean the car is 45 degrees off
-                            slope = find_slope(best_shot_vector.flatten(),car_to_ball.flatten())
-                            if forward_flag:
-                                if (ball_location[2] <= 300 or (not in_field(ball_location, 200) and not in_field(agent.me.location, 100))) and slope > 0.0:
-                                    hits[pair].append(jump_shot(ball_location,intercept_time,best_shot_vector,slope))
-                                if ball_location[2] > 325 and slope > 1 and cap(ball_location[2]-400, 100, 2000) * 0.1 < agent.me.boost:
-                                    if abs((car_to_ball / forward_time) - agent.me.velocity).magnitude() - 300 < 400 * forward_time:
-                                        hits[pair].append(aerial_shot(ball_location,intercept_time,best_shot_vector,slope))
-                            elif backward_flag and ball_location[2] <= 280 and slope > 0.25:
-                                hits[pair].append(jump_shot(ball_location,intercept_time,best_shot_vector,slope,-1))
+
+                        #The slope represents how close the car is to the chosen vector, higher = better
+                        slope = best_shot_vector.flatten().normalize().dot(car_to_ball.flatten().normalize()) * 0.5
+                        slope += distance * 0.0001 # the farther away we are, the easier it is to fix a bad slope
+
+                        if not in_field(ball_location - best_shot_vector * 200, 1):
+                            # we don't want to try and hit the ball when it puts us against the wall
+                            continue
+
+                        if forward_flag:
+                            if ball_location[2] <= 300 and slope > 0.35:
+                                hits[pair].append(jump_shot(ball_location, intercept_time, best_shot_vector, slope))
+                            elif slope > 0.7 and cap(ball_location[2]-400, 100, 2000) * 0.1 < agent.me.boost:
+                                # if abs((car_to_ball / forward_time) - agent.me.velocity).magnitude() - 300 < 400 * forward_time:
+                                hits[pair].append(aerial_shot(ball_location, intercept_time, best_shot_vector, slope))
+                        elif backward_flag and ball_location[2] < 300 and slope > 0.5:
+                            hits[pair].append(jump_shot(ball_location, intercept_time, best_shot_vector, slope, -1))
         else:
             i += 1
     return hits

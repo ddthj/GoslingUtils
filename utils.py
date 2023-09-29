@@ -54,16 +54,7 @@ def in_field(point,radius):
         return False
     elif point[0] > 2650 and point[1] > -point[0] + 8025 - radius:
         return False
-    return True    
-
-def find_slope(shot_vector,car_to_target):
-    #Finds the slope of your car's position relative to the shot vector (shot vector is y axis)
-    #10 = you are on the axis and the ball is between you and the direction to shoot in
-    #-10 = you are on the wrong side
-    #1.0 = you're about 45 degrees offcenter
-    d = shot_vector.dot(car_to_target)
-    e = abs(shot_vector.cross((0,0,1)).dot(car_to_target))
-    return cap(d / e if e != 0 else 10*sign(d), -3.0,3.0)
+    return True
 
 def post_correction(ball_location, left_target, right_target):
     #this function returns target locations that are corrected to account for the ball's radius
