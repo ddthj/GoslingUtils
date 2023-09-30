@@ -19,7 +19,7 @@ class aerial_shot():
         #The direction we intend to hit the ball in
         self.shot_vector = shot_vector
         #The point we hit the ball at
-        self.intercept = self.ball_location - (self.shot_vector * 110)
+        self.intercept = self.ball_location - (self.shot_vector * 125)
         #dictates when (how late) we jump, much later than in jump_shot because we can take advantage of a double jump
         self.jump_threshold = 600
         #what time we began our jump at
@@ -31,7 +31,7 @@ class aerial_shot():
     def run(self,agent):
         raw_time_remaining = self.intercept_time - agent.time
         #Capping raw_time_remaining above 0 to prevent division problems
-        time_remaining = cap(raw_time_remaining,0.01,10.0)
+        time_remaining = cap(raw_time_remaining, 0.01, 10.0)
 
         car_to_ball = self.ball_location - agent.me.location
         #whether we are to the left or right of the shot vector
@@ -48,13 +48,14 @@ class aerial_shot():
 
         #The adjustment causes the car to circle around the dodge point in an effort to line up with the shot vector
         #The adjustment slowly decreases to 0 as the bot nears the time to jump
-        adjustment = car_to_intercept.angle(self.shot_vector) * flat_distance_remaining / 1.57 #size of adjustment
-        adjustment *= (cap(self.jump_threshold-(acceleration_required[2]),0.0,self.jump_threshold) / self.jump_threshold) #factoring in how close to jump we are
+        adjustment = car_to_intercept.angle(self.shot_vector) * flat_distance_remaining / 1.57  # size of adjustment
+        adjustment *= (cap(self.jump_threshold-(acceleration_required[2]),0.0,self.jump_threshold) / self.jump_threshold)  # factoring in how close to jump we are
         #we don't adjust the final target if we are already jumping
         final_target = self.intercept + ((car_to_intercept_perp.normalize() * adjustment) if self.jump_time == 0 else 0)
 
-        #Some extra adjustment to the final target to ensure it's inside the field and we don't try to dirve through any goalposts to reach it
-        if abs(agent.me.location[1]) > 5150: final_target[0] = cap(final_target[0],-750,750)
+        # Some extra adjustment to the final target to ensure it's inside the field and we don't try to drive through
+        # any goalposts to reach it
+        if abs(agent.me.location[1]) > 5150: final_target[0] = cap(final_target[0], -750, 750)
         
         local_final_target = agent.me.local(final_target - agent.me.location)
 
@@ -73,7 +74,8 @@ class aerial_shot():
             velocity_required = car_to_intercept / time_remaining
             good_slope = velocity_required[2] / cap(abs(velocity_required[0]) + abs(velocity_required[1]), 1, 10000) > 0.15
             if good_slope and (local_acceleration_required[2]) > self.jump_threshold and agent.me.velocity.flatten().normalize().dot(acceleration_required.flatten().normalize()) > 0.8:
-                #Switch into the jump when the upward acceleration required reaches our threshold, hopefully we have aligned already...
+                # Switch into the jump when the upward acceleration required reaches our threshold.
+                # Hopefully we have aligned already...
                 self.jump_time = agent.time
         else:
             time_since_jump = agent.time - self.jump_time

@@ -12,6 +12,10 @@ class ExampleBot(GoslingAgent):
         my_dist_to_owngoal = (agent.me.location - agent.friend_goal.location).magnitude()
         ball_closer_than_me = ball_dist_to_owngoal < my_dist_to_owngoal
 
+        left_test_a, left_test_b = Vector3(-4100 * side(agent.team), agent.ball.location.y, 0), Vector3(4100 * side(agent.team), agent.ball.location.y, 0)
+        agent.line(agent.me.location, left_test_a, (0, 255, 0))
+        agent.line(agent.me.location, left_test_b, (255, 0, 0))
+
         # If the stack currently has routines on it, we won't do anything else.
         # This first statement makes sure the stack is empty before evaluating what to do next
         # Maybe in the future, you could have it look for a better shot to take even as the current one is running???
@@ -24,14 +28,18 @@ class ExampleBot(GoslingAgent):
                 agent.push(kickoff())
             else:
                 # If we're in match play, the first thing we do is create a dictionary of targets
-                # I only have one for now, named "goal," that target's the opponent's goal
-                targets = {"goal":(agent.foe_goal.left_post, agent.foe_goal.right_post)}
+                # I will make a few. One for the opponent's goal, and one for a clear (aiming between either side of the field
+                targets = {
+                    "goal": (agent.foe_goal.left_post, agent.foe_goal.right_post),
+                    "clear": (Vector3(-4100 * side(agent.team), agent.ball.location.y, 0), Vector3(4100 * side(agent.team), agent.ball.location.y, 0))
+                }
 
                 # Once we have the dictionary complete, we pass it to the find_hits tool that looks into the future
                 # to find potential shots to take
                 shots = find_hits(agent, targets)
 
-                # Time to push a routine. Let's see if we have any shots on goal we can take
+                # Time to push a routine. Let's see if we have any shots we can take
+
                 if len(shots["goal"]) > 0:
                     # We do, but is it any good? I want to "score" how good each shot is by its average speed vs how
                     # aligned we are for it!
@@ -50,7 +58,13 @@ class ExampleBot(GoslingAgent):
 
                     # So now we've found the "best" shot, but could we do better?
                     # It may be better to drive the car into a good position before taking a shot
-                    agent.push(best_shot)
+                    if score_shot(best_shot) > 500:
+                        agent.push(best_shot)
+                    elif len(shots["clear"]) > 0:
+                        agent.push(shots["clear"][0])
+
+                elif len(shots["clear"]) > 0:
+                    agent.push(shots["clear"][0])
 
                 # If there aren't any shots to take, we need to do something else.
                 # Usually we can't take a shot because we don't have enough boost, so we'll look for a good boostpad
