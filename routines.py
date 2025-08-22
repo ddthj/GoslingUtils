@@ -161,7 +161,7 @@ class goto():
         agent.line(self.target - Vector3(0,0,500),self.target + Vector3(0,0,500),[255,0,255])
         
         if self.vector != None:
-            #See commends for adjustment in jump_shot or aerial for explanation
+            #See commands for adjustment in jump_shot or aerial for explanation
             side_of_vector = sign(self.vector.cross((0,0,1)).dot(car_to_target))
             car_to_target_perp = car_to_target.cross((0,0,side_of_vector)).normalize()
             adjustment = car_to_target.angle(self.vector) * distance_remaining / 3.14
